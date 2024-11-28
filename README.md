@@ -73,7 +73,7 @@ The Peg Zone is designed to allow low slippage exchanges between vETH and ETH. T
 ## Links
 
 - **Previous audits:**  [audit/SlowMistAudit.pdf](https://github.com/code-423n4/2024-11-lambowin/blob/main/audit/SlowMistAudit.pdf)
-- **Documentation:** https://docsend.com/view/f2tf4zkt2udaydwd
+- **Documentation:** [doc/LamboV2.pdf](https://github.com/code-423n4/2024-11-lambowin/blob/main/doc/LamboV2.pdf)
 - **Website:** https://lambo.win/launchpool
 - **X/Twitter:** https://x.com/lambodotwin
 
