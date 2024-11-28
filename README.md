@@ -94,7 +94,8 @@ The Peg Zone is designed to allow low slippage exchanges between vETH and ETH. T
 | /src/VirtualToken.sol | 1| **** | 117 | |@openzeppelin/contracts/token/ERC20/ERC20.sol<br>@openzeppelin/contracts/token/ERC20/IERC20.sol<br>@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol<br>@openzeppelin/contracts/access/Ownable.sol|
 | /src/rebalance/LamboRebalanceOnUniwap.sol | 1| **** | 131 | |@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol<br>@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol<br>@openzeppelin/contracts/token/ERC20/IERC20.sol<br>@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol<br>@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol<br>@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol<br>@morpho/interfaces/IMorpho.sol<br>@morpho/interfaces/IMorphoCallbacks.sol|
 | /src/Utils/LaunchPadUtils.sol | 1| **** | 10 | ||
-| **Totals** | **6** | **** | **553** | | |
+| src/libraries/UniswapV2Library.sol | - | **** | 48 | ||
+| **Totals** | **6** | **** | **601** | | |
 
 ### Files out of scope
 

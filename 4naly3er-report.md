@@ -9,14 +9,15 @@
 | [GAS-1](#GAS-1) | Don't use `_msgSender()` if not supporting EIP-2771 | 3 |
 | [GAS-2](#GAS-2) | `a = a + b` is more gas effective than `a += b` for state variables (excluding arrays and mappings) | 4 |
 | [GAS-3](#GAS-3) | Using bools for storage incurs overhead | 3 |
-| [GAS-4](#GAS-4) | For Operations that will not overflow, you could use unchecked | 70 |
-| [GAS-5](#GAS-5) | Use Custom Errors instead of Revert Strings to save Gas | 32 |
+| [GAS-4](#GAS-4) | For Operations that will not overflow, you could use unchecked | 77 |
+| [GAS-5](#GAS-5) | Use Custom Errors instead of Revert Strings to save Gas | 38 |
 | [GAS-6](#GAS-6) | Avoid contract existence checks by using low level calls | 6 |
 | [GAS-7](#GAS-7) | Functions guaranteed to revert when called by normal users can be marked `payable` | 10 |
 | [GAS-8](#GAS-8) | Using `private` rather than `public` for constants, saves gas | 15 |
 | [GAS-9](#GAS-9) | Use shift right/left instead of division/multiplication if possible | 1 |
-| [GAS-10](#GAS-10) | Use != 0 instead of > 0 for unsigned integer comparison | 4 |
-| [GAS-11](#GAS-11) | WETH address definition can be use directly | 2 |
+| [GAS-10](#GAS-10) | Splitting require() statements that use && saves gas | 2 |
+| [GAS-11](#GAS-11) | Use != 0 instead of > 0 for unsigned integer comparison | 8 |
+| [GAS-12](#GAS-12) | WETH address definition can be use directly | 2 |
 ### <a name="GAS-1"></a>[GAS-1] Don't use `_msgSender()` if not supporting EIP-2771
 Use `msg.sender` if the code does not implement [EIP-2771 trusted forwarder](https://eips.ethereum.org/EIPS/eip-2771) support
 
@@ -81,7 +82,7 @@ File: ./src/VirtualToken.sol
 
 ### <a name="GAS-4"></a>[GAS-4] For Operations that will not overflow, you could use unchecked
 
-*Instances (70)*:
+*Instances (77)*:
 ```solidity
 File: ./src/LamboFactory.sol
 
@@ -215,6 +216,26 @@ File: ./src/VirtualToken.sol
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/VirtualToken.sol)
 
 ```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+3: import "@uniswap/interfaces/IUniswapV2Pair.sol";
+
+24:                             hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f" // init code hash
+
+47:         amountB = (amountA * reserveB) / reserveA;
+
+54:         uint amountInWithFee = amountIn * 997;
+
+55:         uint numerator = amountInWithFee * reserveOut;
+
+56:         uint denominator = reserveIn * 1000 + amountInWithFee;
+
+57:         amountOut = numerator / denominator;
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+```solidity
 File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 
 4: import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -269,7 +290,7 @@ Source: <https://blog.soliditylang.org/2021/04/21/custom-errors/>:
 
 Consider replacing **all revert strings** with custom errors in the solution, and particularly those that have multiple occurrences:
 
-*Instances (32)*:
+*Instances (38)*:
 ```solidity
 File: ./src/LamboFactory.sol
 
@@ -337,6 +358,24 @@ File: ./src/VirtualToken.sol
 
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/VirtualToken.sol)
+
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+8:         require(tokenA != tokenB, "UniswapV2Library: IDENTICAL_ADDRESSES");
+
+10:         require(token0 != address(0), "UniswapV2Library: ZERO_ADDRESS");
+
+45:         require(amountA > 0, "UniswapV2Library: INSUFFICIENT_AMOUNT");
+
+46:         require(reserveA > 0 && reserveB > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
+
+52:         require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
+
+53:         require(reserveIn > 0 && reserveOut > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
 
 ```solidity
 File: ./src/rebalance/LamboRebalanceOnUniwap.sol
@@ -522,9 +561,36 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="GAS-10"></a>[GAS-10] Use != 0 instead of > 0 for unsigned integer comparison
+### <a name="GAS-10"></a>[GAS-10] Splitting require() statements that use && saves gas
 
-*Instances (4)*:
+*Instances (2)*:
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+46:         require(reserveA > 0 && reserveB > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
+
+53:         require(reserveIn > 0 && reserveOut > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+### <a name="GAS-11"></a>[GAS-11] Use != 0 instead of > 0 for unsigned integer comparison
+
+*Instances (8)*:
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+45:         require(amountA > 0, "UniswapV2Library: INSUFFICIENT_AMOUNT");
+
+46:         require(reserveA > 0 && reserveB > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
+
+52:         require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
+
+53:         require(reserveIn > 0 && reserveOut > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
 ```solidity
 File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 
@@ -539,7 +605,7 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="GAS-11"></a>[GAS-11] WETH address definition can be use directly
+### <a name="GAS-12"></a>[GAS-12] WETH address definition can be use directly
 WETH is a wrap Ether contract with a specific address in the Ethereum network, giving the option to define it may cause false recognition, it is healthier to define it directly.
 
     Advantages of defining a specific contract directly:
@@ -572,19 +638,38 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 
 | |Issue|Instances|
 |-|:-|:-:|
-| [NC-1](#NC-1) | Constants should be in CONSTANT_CASE | 6 |
-| [NC-2](#NC-2) | `constant`s should be defined rather than using magic numbers | 3 |
-| [NC-3](#NC-3) | Control structures do not follow the Solidity Style Guide | 2 |
-| [NC-4](#NC-4) | Consider disabling `renounceOwnership()` | 4 |
-| [NC-5](#NC-5) | Draft Dependencies | 1 |
-| [NC-6](#NC-6) | Functions should not be longer than 50 lines | 46 |
-| [NC-7](#NC-7) | Use a `modifier` instead of a `require/if` statement for a special `msg.sender` actor | 3 |
-| [NC-8](#NC-8) | Consider using named mappings | 4 |
-| [NC-9](#NC-9) | `address`s shouldn't be hard-coded | 11 |
-| [NC-10](#NC-10) | Use scientific notation (e.g. `1e18`) rather than exponentiation (e.g. `10**18`) | 1 |
-| [NC-11](#NC-11) | Avoid the use of sensitive terms | 25 |
-| [NC-12](#NC-12) | Use Underscores for Number Literals (add an underscore every 3 digits) | 2 |
-### <a name="NC-1"></a>[NC-1] Constants should be in CONSTANT_CASE
+| [NC-1](#NC-1) | Use `string.concat()` or `bytes.concat()` instead of `abi.encodePacked` | 2 |
+| [NC-2](#NC-2) | Constants should be in CONSTANT_CASE | 6 |
+| [NC-3](#NC-3) | `constant`s should be defined rather than using magic numbers | 5 |
+| [NC-4](#NC-4) | Control structures do not follow the Solidity Style Guide | 2 |
+| [NC-5](#NC-5) | Consider disabling `renounceOwnership()` | 4 |
+| [NC-6](#NC-6) | Draft Dependencies | 1 |
+| [NC-7](#NC-7) | Functions should not be longer than 50 lines | 50 |
+| [NC-8](#NC-8) | Change uint to uint256 | 7 |
+| [NC-9](#NC-9) | Use a `modifier` instead of a `require/if` statement for a special `msg.sender` actor | 3 |
+| [NC-10](#NC-10) | Consider using named mappings | 4 |
+| [NC-11](#NC-11) | `address`s shouldn't be hard-coded | 11 |
+| [NC-12](#NC-12) | Variable names that consist of all capital letters should be reserved for `constant`/`immutable` variables | 1 |
+| [NC-13](#NC-13) | Use scientific notation (e.g. `1e18`) rather than exponentiation (e.g. `10**18`) | 1 |
+| [NC-14](#NC-14) | Avoid the use of sensitive terms | 25 |
+| [NC-15](#NC-15) | Use Underscores for Number Literals (add an underscore every 3 digits) | 3 |
+### <a name="NC-1"></a>[NC-1] Use `string.concat()` or `bytes.concat()` instead of `abi.encodePacked`
+Solidity version 0.8.4 introduces `bytes.concat()` (vs `abi.encodePacked(<bytes>,<bytes>)`)
+
+Solidity version 0.8.12 introduces `string.concat()` (vs `abi.encodePacked(<str>,<str>), which catches concatenation errors (in the event of a `bytes` data mixed in the concatenation)`)
+
+*Instances (2)*:
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+20:                         abi.encodePacked(
+
+23:                             keccak256(abi.encodePacked(token0, token1)),
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+### <a name="NC-2"></a>[NC-2] Constants should be in CONSTANT_CASE
 For `constant` variable names, each word should use all capital letters, with underscores separating each word (CONSTANT_CASE)
 
 *Instances (6)*:
@@ -612,10 +697,10 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="NC-2"></a>[NC-2] `constant`s should be defined rather than using magic numbers
+### <a name="NC-3"></a>[NC-3] `constant`s should be defined rather than using magic numbers
 Even [assembly](https://github.com/code-423n4/2022-05-opensea-seaport/blob/9d7ce4d08bf3c3010304a0476a785c70c0e90ae7/contracts/lib/TokenTransferrer.sol#L35-L39) can benefit from using readable constants instead of hex/numeric literals
 
-*Instances (3)*:
+*Instances (5)*:
 ```solidity
 File: ./src/LamboToken.sol
 
@@ -633,6 +718,16 @@ File: ./src/LamboVEthRouter.sol
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/LamboVEthRouter.sol)
 
 ```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+54:         uint amountInWithFee = amountIn * 997;
+
+56:         uint denominator = reserveIn * 1000 + amountInWithFee;
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+```solidity
 File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 
 135:         uint256 targetBalance = (wethBalance + vethBalance) / 2;
@@ -640,7 +735,7 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="NC-3"></a>[NC-3] Control structures do not follow the Solidity Style Guide
+### <a name="NC-4"></a>[NC-4] Control structures do not follow the Solidity Style Guide
 See the [control structures](https://docs.soliditylang.org/en/latest/style-guide.html#control-structures) section of the Solidity Style Guide
 
 *Instances (2)*:
@@ -654,7 +749,7 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="NC-4"></a>[NC-4] Consider disabling `renounceOwnership()`
+### <a name="NC-5"></a>[NC-5] Consider disabling `renounceOwnership()`
 If the plan for your project does not include eventually giving up all ownership control, consider overwriting OpenZeppelin's `Ownable`'s `renounceOwnership()` function in order to disable it.
 
 *Instances (4)*:
@@ -690,7 +785,7 @@ File: ./src/VirtualToken.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/VirtualToken.sol)
 
-### <a name="NC-5"></a>[NC-5] Draft Dependencies
+### <a name="NC-6"></a>[NC-6] Draft Dependencies
 Draft contracts have not received adequate security auditing or are liable to change with future developments.
 
 *Instances (1)*:
@@ -702,10 +797,10 @@ File: ./src/LamboToken.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/LamboToken.sol)
 
-### <a name="NC-6"></a>[NC-6] Functions should not be longer than 50 lines
+### <a name="NC-7"></a>[NC-7] Functions should not be longer than 50 lines
 Overly complex code can make understanding functionality more difficult, try to further modularize your code to ensure readability 
 
-*Instances (46)*:
+*Instances (50)*:
 ```solidity
 File: ./src/LamboFactory.sol
 
@@ -805,6 +900,20 @@ File: ./src/VirtualToken.sol
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/VirtualToken.sol)
 
 ```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+7:     function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+
+14:     function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
+
+44:     function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
+
+51:     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+```solidity
 File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 
 40:     function initialize(address _multiSign, address _vETH, address _uniswap, uint24 _fee) public initializer {
@@ -828,7 +937,31 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="NC-7"></a>[NC-7] Use a `modifier` instead of a `require/if` statement for a special `msg.sender` actor
+### <a name="NC-8"></a>[NC-8] Change uint to uint256
+Throughout the code base, some variables are declared as `uint`. To favor explicitness, consider changing all instances of `uint` to `uint256`
+
+*Instances (7)*:
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+37:     ) internal view returns (uint reserveA, uint reserveB) {
+
+39:         (uint reserve0, uint reserve1, ) = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).getReserves();
+
+44:     function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
+
+51:     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
+
+54:         uint amountInWithFee = amountIn * 997;
+
+55:         uint numerator = amountInWithFee * reserveOut;
+
+56:         uint denominator = reserveIn * 1000 + amountInWithFee;
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+### <a name="NC-9"></a>[NC-9] Use a `modifier` instead of a `require/if` statement for a special `msg.sender` actor
 If a function is supposed to be access-controlled, a `modifier` should be used instead of a `require/if` statement for more readability.
 
 *Instances (3)*:
@@ -850,7 +983,7 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="NC-8"></a>[NC-8] Consider using named mappings
+### <a name="NC-10"></a>[NC-10] Consider using named mappings
 Consider moving to solidity version 0.8.18 or later, and using [named mappings](https://ethereum.stackexchange.com/questions/51629/how-to-name-the-arguments-in-mapping/145555#145555) to make it easier to understand the purpose of each mapping
 
 *Instances (4)*:
@@ -874,7 +1007,7 @@ File: ./src/VirtualToken.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/VirtualToken.sol)
 
-### <a name="NC-9"></a>[NC-9] `address`s shouldn't be hard-coded
+### <a name="NC-11"></a>[NC-11] `address`s shouldn't be hard-coded
 It is often better to declare `address`es as `immutable`, and assign them via constructor arguments. This allows the code to remain the same across deployments on different networks, and avoids recompilation when addresses need to change.
 
 *Instances (11)*:
@@ -918,7 +1051,19 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="NC-10"></a>[NC-10] Use scientific notation (e.g. `1e18`) rather than exponentiation (e.g. `10**18`)
+### <a name="NC-12"></a>[NC-12] Variable names that consist of all capital letters should be reserved for `constant`/`immutable` variables
+If the variable needs to be different based on which class it comes from, a `view`/`pure` *function* should be used instead (e.g. like [this](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/76eee35971c2541585e05cbf258510dda7b2fbc6/contracts/token/ERC20/extensions/draft-IERC20Permit.sol#L59)).
+
+*Instances (1)*:
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+1: pragma solidity ^0.8.20;
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+### <a name="NC-13"></a>[NC-13] Use scientific notation (e.g. `1e18`) rather than exponentiation (e.g. `10**18`)
 While this won't save gas in the recent solidity versions, this is shorter and more readable (this is especially true in calculations).
 
 *Instances (1)*:
@@ -930,7 +1075,7 @@ File: ./src/Utils/LaunchPadUtils.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/Utils/LaunchPadUtils.sol)
 
-### <a name="NC-11"></a>[NC-11] Avoid the use of sensitive terms
+### <a name="NC-14"></a>[NC-14] Avoid the use of sensitive terms
 Use [alternative variants](https://www.zdnet.com/article/mysql-drops-master-slave-and-blacklist-whitelist-terminology/), e.g. allowlist/denylist instead of whitelist/blacklist
 
 *Instances (25)*:
@@ -996,9 +1141,9 @@ File: ./src/VirtualToken.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/VirtualToken.sol)
 
-### <a name="NC-12"></a>[NC-12] Use Underscores for Number Literals (add an underscore every 3 digits)
+### <a name="NC-15"></a>[NC-15] Use Underscores for Number Literals (add an underscore every 3 digits)
 
-*Instances (2)*:
+*Instances (3)*:
 ```solidity
 File: ./src/LamboVEthRouter.sol
 
@@ -1015,6 +1160,14 @@ File: ./src/Utils/LaunchPadUtils.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/Utils/LaunchPadUtils.sol)
 
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+56:         uint denominator = reserveIn * 1000 + amountInWithFee;
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
 
 ## Low Issues
 
@@ -1023,13 +1176,15 @@ File: ./src/Utils/LaunchPadUtils.sol
 |-|:-|:-:|
 | [L-1](#L-1) | `approve()`/`safeApprove()` may revert if the current approval is not zero | 3 |
 | [L-2](#L-2) | Use a 2-step ownership transfer pattern | 5 |
-| [L-3](#L-3) | Division by zero not prevented | 4 |
+| [L-3](#L-3) | Division by zero not prevented | 6 |
 | [L-4](#L-4) | External call recipient may consume all transaction gas | 5 |
 | [L-5](#L-5) | Initializers could be front-run | 5 |
-| [L-6](#L-6) | Use `Ownable2Step.transferOwnership` instead of `Ownable.transferOwnership` | 7 |
-| [L-7](#L-7) | Unsafe ERC20 operation(s) | 3 |
-| [L-8](#L-8) | Upgradeable contract is missing a `__gap[50]` storage variable to allow for new storage variables in later versions | 7 |
-| [L-9](#L-9) | Upgradeable contract not initialized | 13 |
+| [L-6](#L-6) | Possible rounding issue | 1 |
+| [L-7](#L-7) | Loss of precision | 1 |
+| [L-8](#L-8) | Use `Ownable2Step.transferOwnership` instead of `Ownable.transferOwnership` | 7 |
+| [L-9](#L-9) | Unsafe ERC20 operation(s) | 3 |
+| [L-10](#L-10) | Upgradeable contract is missing a `__gap[50]` storage variable to allow for new storage variables in later versions | 7 |
+| [L-11](#L-11) | Upgradeable contract not initialized | 13 |
 ### <a name="L-1"></a>[L-1] `approve()`/`safeApprove()` may revert if the current approval is not zero
 - Some tokens (like the *very popular* USDT) do not work when changing the allowance from an existing non-zero allowance value (it will revert if the current approval is not zero to protect against front-running changes of approvals). These tokens must first be approved for zero and then the actual allowance can be approved.
 - Furthermore, OZ's implementation of safeApprove would throw an error if an approve is attempted from a non-zero value (`"SafeERC20: approve from non-zero to non-zero allowance"`)
@@ -1090,7 +1245,7 @@ File: ./src/VirtualToken.sol
 ### <a name="L-3"></a>[L-3] Division by zero not prevented
 The divisions below take an input parameter which does not have any zero-value checks, which may lead to the functions reverting when zero is passed.
 
-*Instances (4)*:
+*Instances (6)*:
 ```solidity
 File: ./src/LamboVEthRouter.sol
 
@@ -1104,6 +1259,16 @@ File: ./src/LamboVEthRouter.sol
 
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/LamboVEthRouter.sol)
+
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+47:         amountB = (amountA * reserveB) / reserveA;
+
+57:         amountOut = numerator / denominator;
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
 
 ### <a name="L-4"></a>[L-4] External call recipient may consume all transaction gas
 There is no limit specified on the amount of gas used, so the recipient can use up all of the transaction's gas, causing it to revert. Use `addr.call{gas: <amount>}("")` or [this](https://github.com/nomad-xyz/ExcessivelySafeCall) library instead.
@@ -1163,7 +1328,31 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="L-6"></a>[L-6] Use `Ownable2Step.transferOwnership` instead of `Ownable.transferOwnership`
+### <a name="L-6"></a>[L-6] Possible rounding issue
+Division by large numbers may result in the result being zero, due to solidity not supporting fractions. Consider requiring a minimum amount for the numerator to ensure that it is always larger than the denominator. Also, there is indication of multiplication and division without the use of parenthesis which could result in issues.
+
+*Instances (1)*:
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+47:         amountB = (amountA * reserveB) / reserveA;
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+### <a name="L-7"></a>[L-7] Loss of precision
+Division by large numbers may result in the result being zero, due to solidity not supporting fractions. Consider requiring a minimum amount for the numerator to ensure that it is always larger than the denominator
+
+*Instances (1)*:
+```solidity
+File: ./src/libraries/UniswapV2Library.sol
+
+47:         amountB = (amountA * reserveB) / reserveA;
+
+```
+[Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/libraries/UniswapV2Library.sol)
+
+### <a name="L-8"></a>[L-8] Use `Ownable2Step.transferOwnership` instead of `Ownable.transferOwnership`
 Use [Ownable2Step.transferOwnership](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable2Step.sol) which is safer. Use it as it is more secure due to 2-stage ownership transfer.
 
 **Recommended Mitigation Steps**
@@ -1223,7 +1412,7 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="L-7"></a>[L-7] Unsafe ERC20 operation(s)
+### <a name="L-9"></a>[L-9] Unsafe ERC20 operation(s)
 
 *Instances (3)*:
 ```solidity
@@ -1238,7 +1427,7 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="L-8"></a>[L-8] Upgradeable contract is missing a `__gap[50]` storage variable to allow for new storage variables in later versions
+### <a name="L-10"></a>[L-10] Upgradeable contract is missing a `__gap[50]` storage variable to allow for new storage variables in later versions
 See [this](https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps) link for a description of this storage variable. While some contracts may not currently be sub-classed, adding the variable now protects against forgetting to add it in the future.
 
 *Instances (7)*:
@@ -1262,7 +1451,7 @@ File: ./src/rebalance/LamboRebalanceOnUniwap.sol
 ```
 [Link to code](https://github.com/code-423n4/2024-12-lambowin/blob/main/./src/rebalance/LamboRebalanceOnUniwap.sol)
 
-### <a name="L-9"></a>[L-9] Upgradeable contract not initialized
+### <a name="L-11"></a>[L-11] Upgradeable contract not initialized
 Upgradeable contracts are initialized via an initializer function rather than by a constructor. Leaving such a contract uninitialized may lead to it being taken over by a malicious user
 
 *Instances (13)*:

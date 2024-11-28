@@ -30,7 +30,6 @@
 ./src/libraries/1inchV6.sol
 ./src/libraries/AddressLib.sol
 ./src/libraries/ProtocolLib.sol
-./src/libraries/UniswapV2Library.sol
 ./test/BaseTest.t.sol
 ./test/GeneralTest.t.sol
 ./test/LiquidityManage.t.sol
