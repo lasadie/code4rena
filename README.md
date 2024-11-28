@@ -133,8 +133,7 @@ N/A
 
 ## Main invariants
 
-The the owner of VETH is invariants.
-✅
+N/A
 
 ## Attack ideas (where to focus for bugs)
 1.  The V3 Liquidity (VETH <-> WETH)'s safety
@@ -144,9 +143,7 @@ The the owner of VETH is invariants.
 
 ## All trusted roles in the protocol
 
-Uniswap V2 and Uniswap V3
-
-✅
+The owner of vETH, LamboRouter, LamboFactory and the RebalanceContract is trusted
 
 ## Describe any novel or unique curve logic or mathematical models implemented in the contracts:
 
