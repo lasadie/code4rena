@@ -4,6 +4,7 @@
   - QA awards: $748 in USDC
   - Judge awards: $2,000 in USDC
   - Scout awards: $500 in USDC
+  - Validator awards: $1,300 in USDC
 - [Read our guidelines for more details](https://docs.code4rena.com/roles/wardens)
 - Starts November 27, 2024 20:00 UTC
 - Ends December 4, 2024 20:00 UTC
