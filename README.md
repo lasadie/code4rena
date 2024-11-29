@@ -57,12 +57,12 @@ This is the core contract of Lambo.win:
 2. LamboFactor
 3. LamboRouter
 
-![img](https://github.com/code-423n4/2024-11-lambowin/blob/main/framework.png)
+![img](https://github.com/code-423n4/2024-11-lambowin/blob/main/framework.png?raw=true)
 
 ## Peg And Repeg
 
 We will deploy liquidity on Uniswap V3, and the `LamboRebalanceOnUniwap` contract is responsible for rebalancing the Uniswap V3 pool. The Rebalance contract utilizes the flash loan mechanism to perform arbitrage operations through MorphoVault. Specifically, the Rebalance contract executes buy or sell operations in the Uniswap V3 pool to ensure the pool's balance and gain profit through arbitrage.
-![Defintion](https://github.com/code-423n4/2024-11-lambowin/blob/main/Lambo-VirtualToken.png)
+![Defintion](https://github.com/code-423n4/2024-11-lambowin/blob/main/Lambo-VirtualToken.png?raw=true)
 
 In Uniswap V3, Lambo's LP needs to have two ranges:
 1. Peg Zone
@@ -75,7 +75,7 @@ The Peg Zone is designed to allow low slippage exchanges between vETH and ETH. T
 
 - **Previous audits:**  [audit/SlowMistAudit.pdf](https://github.com/code-423n4/2024-11-lambowin/blob/main/audit/SlowMistAudit.pdf)
 - **Documentation:** [doc/LamboV2.pdf](https://github.com/code-423n4/2024-11-lambowin/blob/main/doc/LamboV2.pdf)
-- **Website:** https://lambo.win/launchpool
+- **Website:** [lambo.win/launchpool](https://lambo.win/launchpool)
 - **X/Twitter:** https://x.com/lambodotwin
 
 ---
